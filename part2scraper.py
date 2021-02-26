@@ -1,5 +1,8 @@
-import codecs, requests
+import codecs, requests, re
 from bs4 import BeautifulSoup
+from prettytable import PrettyTable
+import matplotlib.pyplot as plt
+import numpy as np
 
 #The project will be analyzing the gme stock over 1 month.
 
@@ -38,8 +41,41 @@ for row in the_rows:
     cols = [ele.text.strip() for ele in cols]
     data.append([ele for ele in cols if ele]) # get rid of empty values
 
-#limit the data to two weeks from the current date
+#limit the data to 14 entries from the current date
 data = data[:14]
+stocks = PrettyTable()
+stocks.field_names = ["Date", "Open", "High", "Low", "Close", "Adj close", "Volume"]
+stocks.add_rows(data)
 
+print(stocks)
 
-print(data)
+dates = list()
+
+#gets the numerical date in the month from the date in the table
+
+year = input("What is the current year?: ")
+for the_date in data:
+    the_string = the_date[0]
+    
+    the_string = the_string.strip(year)
+    the_string = the_string.strip(str(int(year)-1))
+    the_string = the_string.strip(str(int(year)+1))
+
+    #removes all non-digits, commas, and decimals
+    the_string = re.sub("[^\d\.]", "", the_string)
+    dates.append(int(the_string))
+
+#reverses dates from oldest to newest for graph
+dates.reverse()
+print(dates)
+
+the_opens = list()
+for an_item in data:
+    the_open = an_item[1]
+    the_opens.append(float(the_open))
+
+the_opens.reverse()
+print(the_opens)
+
+plt.plot(dates, the_opens)
+plt.show()
